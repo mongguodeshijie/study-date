@@ -1,0 +1,59 @@
+Git知识：
+--git本地生成多个SSH Key：
+	1.设置git全局用户信息
+		git config --global user.name "name"
+		git config --global user.email "email"
+	2.查看SSH版本（若没有输出，则需要安装SSH）
+		ssh -V
+		sudo apt-get install openssh-client openssh-server  #ssh安装命令
+	3.生成SSH Key
+		cd ~/.ssh
+		#若没有id_rsa和id_rsa.pub则可以使用默认生成命令
+		ssh-keygen -t rsa -C "some explanations"
+		#若之前已存在，可自定义生成
+		ssh-keygen -t rsa -C "some explanations" -f ~/.ssh/id_rsa_new
+		在~/.ssh目录下有id_rsa(私钥)和id_rsa.pub(公钥)
+	4.添加私钥
+		ssh-add ~/.ssh/id_rsa
+	5.测试
+		ssh -T git@github.com
+		
+	----单个GitHub用户推送多个GitHub用户
+		常用于同一个用户推送不同项目的仓库（如个人项目和工作项目）
+	1.生成多个SSH Key：	
+		ssh-keygen -t rsa -C "some explanations" -f ~/.ssh/id_rsa_P
+		ssh-keygen -t rsa -C "some explanations" -f ~/.ssh/id_rsa_W
+	2.添加私钥
+		ssh-add ~/.ssh/id_rsa_P
+		ssh-add ~/.ssh/id_rsa_W
+	3.修改配置文件（~/.ssh/config）
+		若没有就在~/.ssh目录创建config文件，该文件用于配置私钥对应的服务器。
+		vim config
+		#Personal
+		Host personal
+		HostName github.com
+		User username@example.com
+		IdentityFile ~/.ssh/id_rsa_P
+		#Work
+		Host personal
+		HostName github.com
+		User username@example.com
+		IdentityFile ~/.ssh/id_rsa_W
+	4.添加不同的公钥到对应的GitHub账号
+	5.测试
+		ssh -T git@github.com
+		
+	常见问题处理
+		1.查看系统ssh-key代理，执行如下命令：
+			ssh-add -1  #查看是否有代理
+			ssh-add -D  #清楚代理
+		2.依次添加代理
+			ssh-add ~/.ssh/id_rsa_P
+			添加代理时报如下错误：
+			Could not open a connection to your authentication agent.
+			则执行：
+			ssh-agent bash
+			再执行添加命令。
+		3.测试
+			ssh -T git@github.
+			
