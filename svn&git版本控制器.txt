@@ -1,0 +1,67 @@
+﻿版本控制工具的简单使用：
+
+git：
+1 创建项目：
+命令：git init --bare 路径/test.git
+
+linux上创建git项目：
+--切换用户至git
+	su git
+--创建项目并初始化
+	mkdir test.git    #创建项目
+	cd test.git       #进入新创建的项目
+	git init --bare		#初始化项目
+--第一次提交必须由创建人上传一个文件进行分支关联
+	git clone git地址：项目名称		#把项目克隆到本地
+	git add .						#提交本地文件
+	git commit -m "init"
+	git push origin master			#推送远程仓库
+	
+
+2 拉取项目：
+git clone git@1chalk.com:路径/test.git
+
+SVN：
+-- 创建项目
+svnadmin create /svndata/reporttest
+-- 修改svnserve.conf
+vi /svndata/reporttest/conf/svnserve.conf
+-- 添加用户
+vi /svndata/reporttest/conf/passwd
+-- 修改访问权限
+vi /svndata/reporttest/conf/authz
+
+-- 拉取资源
+svn://120.79.35.251/svndata/reporttest
+
+-- 其它设置
+1.设置客户端可以查看日志：
+ 编辑svnserve.conf，设置“anon-access=none”
+2.设置提交必须写注释：
+ 第一步:mv /home/svn/应急/hooks/pre-commit.tmpl /home/svn/应急/hooks/pre-commit
+ 第二步:vim /home/svn/应急/hooks/pre-commit 修改内容如下:
+
+	REPOS="$1"
+	TXN="$2"
+
+	# Make sure that the log message contains some text.
+	SVNLOOK=/usr/bin/svnlook
+	#$SVNLOOK log -t "$TXN" "$REPOS" | \
+	#   grep "[a-zA-Z0-9]" > /dev/null || exit 1
+
+	LOGMSG=`$SVNLOOK log -t "$TXN" "$REPOS" | grep "[a-zA-Z0-9]" | wc -c` 
+	#要求注释不能少于5个字符，可自定义
+	if [ "$LOGMSG" -lt 5 ];
+	then 
+  	  echo -e "注释信息不能为空且不少于5个字!" 1>&2 
+  	  exit 1 
+	fi
+
+	# Check that the author of this commit has the rights to perform
+	# the commit on the files and directories being modified.
+	#commit-access-control.pl "$REPOS" "$TXN" commit-access-control.cfg || exit 1
+
+	# All checks passed, so allow the commit.
+	exit 0
+
+ 第三步:chmod +x /home/svn/应急/hooks/pre-commit
